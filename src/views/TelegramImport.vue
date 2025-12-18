@@ -177,7 +177,7 @@ import {
   batchParseTelegramMessages, 
   uploadToBackend, 
   validateTelegramData 
-} from '../utils/telegram-json-parser';
+} from '../utils/Telegram-json-parser';
 
 export default {
   name: 'TelegramImport',
@@ -720,3 +720,4 @@ export default {
 }
 
 </style>
+
