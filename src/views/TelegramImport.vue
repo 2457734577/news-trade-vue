@@ -177,7 +177,7 @@ import {
   batchParseTelegramMessages, 
   uploadToBackend, 
   validateTelegramData 
-} from '../utils/Telegram-json-parser';
+} from '../utils/telegram-json-parser';
 
 export default {
   name: 'TelegramImport',
@@ -718,4 +718,5 @@ export default {
 .error-text {
   color: #dc2626;
 }
+
 </style>
