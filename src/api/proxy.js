@@ -1,48 +1,37 @@
 export default async function handler(req, res) {
-  // 允许 CORS
   res.setHeader('Access-Control-Allow-Credentials', 'true')
   res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT')
-  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization')
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
   
   if (req.method === 'OPTIONS') {
-    res.status(200).end()
-    return
+    return res.status(200).end()
   }
 
   const { path } = req.query
   const apiPath = Array.isArray(path) ? path.join('/') : path
-  
   const url = `https://news-trade.take-btc.com/api/${apiPath}`
   
-  console.log(`代理请求: ${req.method} ${url}`)
+  const headers = { 'Content-Type': 'application/json' }
+  if (req.headers.authorization) {
+    headers['Authorization'] = req.headers.authorization
+  }
+  
+  const options = {
+    method: req.method,
+    headers: headers
+  }
+  
+  // Vercel 已经解析了 body，直接用
+  if (req.method !== 'GET' && req.body) {
+    options.body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body)
+  }
   
   try {
-    const headers = {
-      'Content-Type': 'application/json'
-    }
-    
-    if (req.headers.authorization) {
-      headers['Authorization'] = req.headers.authorization
-    }
-    
-    const options = {
-      method: req.method,
-      headers: headers
-    }
-    
-    if (req.method !== 'GET' && req.method !== 'HEAD' && req.body) {
-      options.body = JSON.stringify(req.body)
-    }
-    
     const response = await fetch(url, options)
     const data = await response.json()
-    
-    console.log(`代理响应: ${response.status}`)
-    
-    res.status(response.status).json(data)
+    return res.status(response.status).json(data)
   } catch (error) {
-    console.error('代理错误:', error)
-    res.status(500).json({ error: error.message })
+    return res.status(500).json({ error: error.message })
   }
 }
